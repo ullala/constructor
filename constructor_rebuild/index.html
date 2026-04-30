@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Constructor 3D</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #1a1a2e;
+      font-family: 'Courier New', Courier, monospace;
+      color: #cce0ff;
+    }
+
+    #canvas-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #main-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    /* Top-right info overlay */
+    #info-overlay {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      text-align: right;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    #title-text {
+      font-size: 18px;
+      font-weight: bold;
+      color: #88bbff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    #info-text {
+      font-size: 11px;
+      color: #6688aa;
+      margin-top: 4px;
+    }
+
+    #hint-text {
+      font-size: 10px;
+      color: #445566;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    /* Bottom UI panel */
+    #ui-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: rgba(10, 10, 25, 0.75);
+      border-top: 1px solid #223355;
+      z-index: 10;
+    }
+
+    .con-btn {
+      padding: 7px 20px;
+      background: #1e2a44;
+      color: #88aadd;
+      border: 1px solid #334466;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      letter-spacing: 1px;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+
+    .con-btn:hover {
+      background: #263250;
+      color: #aaccff;
+      border-color: #5577aa;
+    }
+
+    .con-btn.active {
+      background: #2a4a88;
+      color: #ddeeff;
+      border-color: #6699cc;
+    }
+
+    .wall-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #7799bb;
+      cursor: pointer;
+      user-select: none;
+      margin-left: 16px;
+    }
+
+    .wall-label input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: #5588cc;
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Loading overlay */
+    #loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a2e;
+      font-size: 20px;
+      color: #88aacc;
+      letter-spacing: 3px;
+      z-index: 100;
+    }
+  </style>
+
+  <!-- Import map for Three.js r158 and addons -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="canvas-container">
+    <canvas id="main-canvas"></canvas>
+
+    <!-- Top-right info -->
+    <div id="info-overlay">
+      <div id="title-text">Constructor 3D</div>
+      <div id="info-text">Initializing...</div>
+      <div id="hint-text">
+        ← → Drehen &nbsp;|&nbsp; ↑ ↓ Zoom<br>
+        W / S &nbsp; Kamerawinkel<br>
+        Kugeln ziehen zum Interagieren
+      </div>
+    </div>
+
+    <!-- Bottom UI -->
+    <div id="ui-panel">
+      <button class="con-btn active" id="btn-con1">Constructor 1</button>
+      <button class="con-btn"        id="btn-con2">Constructor 2</button>
+      <button class="con-btn"        id="btn-con3">Constructor 3</button>
+      <label class="wall-label">
+        <input type="checkbox" id="wall-toggle" />
+        Walls
+      </label>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading">LOADING&hellip;</div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
