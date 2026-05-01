@@ -1,0 +1,4 @@
+Die neue 3D Welt wurde auf HTML-Basis mit Three.js und cannon-es.js erstellt.
+Die Physik verhält sich aber noch nicht, wie im alten Projekt. 
+Die Physik wirkt instabil. Zwischen den verbundenen Bodies entstehen ruckartige, sprunghafte Bewegungen.
+Ich vermute das Problem entsteht, wenn die Verbindung (Dashpot/Constraint) plötzlich stark korrigiert und die aktuelle Distanz deutlich von der Soll-Länge abweicht. Dann entsteht eine zu Analysiere und korrigiere: Ziel ist eine weiche, kontinuierliche elastische Bewegung.

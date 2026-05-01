@@ -10,8 +10,8 @@ export const WORLD = {
   massRadius: 10,
   massMass: 10,
   springRadius: 1.5,
-  springStiffness: 150,  // original value — works correctly when timing is right
-  springDamping: 8,
+  springStiffness: 2000,
+  springDamping: 30,
   sinusStrength: 0.5,
 };
 

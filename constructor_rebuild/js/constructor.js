@@ -33,7 +33,7 @@ export class Constructor {
       this.masses.push({ body, mesh });
     }
 
-    // --- connections: rigid distance constraints (like original Havok dashpots) ---
+    // --- connections: spring-damper forces applied per sub-step ---
     for (let i = 0; i < cfg.connections.length; i++) {
       const [iA, iB] = cfg.connections[i];
       const sinusVal  = cfg.sinus[i];
@@ -45,22 +45,15 @@ export class Constructor {
       const dz = posB[2] - posA[2];
       const initialDist = Math.sqrt(dx*dx + dy*dy + dz*dz);
 
-      const constraint = physicsWorld.addDistanceConstraint(
-        this.masses[iA].body,
-        this.masses[iB].body,
-        initialDist
-      );
-
       const mesh = world3D.createSpringMesh();
 
       this.springs.push({ massA: this.masses[iA], massB: this.masses[iB],
-                          constraint, mesh, initialDist, sinusVal });
+                          mesh, initialDist, sinusVal });
     }
   }
 
   destroy() {
     for (const s of this.springs) {
-      this._physicsWorld.removeConstraint(s.constraint);
       this._world3D.removeMesh(s.mesh);
     }
     for (const m of this.masses) {
@@ -71,16 +64,44 @@ export class Constructor {
     this.springs = [];
   }
 
-  // Called once per physics tick (= once per Director "frame").
-  // Updates the constraint distance for sinus-animated connections.
-  // This is what drove obj.pointA changes in the original Director code.
-  updateConstraints(sinusCounter) {
-    const sinValue = sinusCounter / 100.0;  // 0..2
+  // Called once per sub-step — applies spring-damper forces (Hooke + dashpot).
+  // Smooth and continuous: no sudden impulse corrections like rigid constraints.
+  applySpringForces(sinusCounter) {
+    const sinValue = sinusCounter / 100.0;
+    const k = WORLD.springStiffness;
+    const c = WORLD.springDamping;
 
     for (const spring of this.springs) {
-      if (spring.sinusVal === 0) continue;
-      const s = Math.sin(Math.PI * (sinValue + spring.sinusVal));
-      spring.constraint.distance = spring.initialDist * (1.0 + WORLD.sinusStrength * s);
+      const bodyA = spring.massA.body;
+      const bodyB = spring.massB.body;
+      const pA = bodyA.position;
+      const pB = bodyB.position;
+
+      const dx = pB.x - pA.x;
+      const dy = pB.y - pA.y;
+      const dz = pB.z - pA.z;
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < 0.001) continue;
+
+      let restLength = spring.initialDist;
+      if (spring.sinusVal !== 0) {
+        const s = Math.sin(Math.PI * (sinValue + spring.sinusVal));
+        restLength *= (1.0 + WORLD.sinusStrength * s);
+      }
+
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const nz = dz / dist;
+
+      // Relative velocity projected onto spring axis
+      const relVel = (bodyB.velocity.x - bodyA.velocity.x) * nx
+                   + (bodyB.velocity.y - bodyA.velocity.y) * ny
+                   + (bodyB.velocity.z - bodyA.velocity.z) * nz;
+
+      const forceMag = k * (dist - restLength) + c * relVel;
+
+      this._physicsWorld.applyForce(bodyA,  forceMag * nx,  forceMag * ny,  forceMag * nz);
+      this._physicsWorld.applyForce(bodyB, -forceMag * nx, -forceMag * ny, -forceMag * nz);
     }
   }
 
@@ -121,9 +142,8 @@ export class Constructor {
     return new THREE.Vector3(cx/n, cy/n, cz/n);
   }
 
-  // Convenience: update constraints + visuals in one call (used during constructor switch)
+  // Convenience: visuals only — used during constructor switch (no physics step needed)
   update(sinusCounter) {
-    this.updateConstraints(sinusCounter);
     return this.updateVisuals();
   }
 

@@ -1,5 +1,5 @@
 // physics.js - Cannon-es physics world wrapper
-import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
+import * as CANNON from '../lib/cannon-es.js';
 
 export class PhysicsWorld {
   constructor() {
@@ -13,8 +13,7 @@ export class PhysicsWorld {
     this.world.gravity.set(0, -327, 0);  // original Director value (-9.81 m/s² / 0.03 scale)
 
     this.world.broadphase = new CANNON.NaiveBroadphase();
-    // More iterations = better constraint enforcement (important for DistanceConstraints)
-    this.world.solver.iterations = 30;
+    this.world.solver.iterations = 10;
     this.world.allowSleep = false;
 
     this.defaultMaterial = new CANNON.Material('default');
@@ -57,20 +56,8 @@ export class PhysicsWorld {
     return body;
   }
 
-  // Rigid distance constraint — replaces spring forces.
-  // Matches original Havok LinearDashpot which maintained exact distances.
-  addDistanceConstraint(bodyA, bodyB, distance) {
-    const constraint = new CANNON.DistanceConstraint(bodyA, bodyB, distance);
-    this.world.addConstraint(constraint);
-    return constraint;
-  }
-
   removeBody(body) {
     if (body && this.world) this.world.removeBody(body);
-  }
-
-  removeConstraint(constraint) {
-    if (constraint && this.world) this.world.removeConstraint(constraint);
   }
 
   step(dt) {

@@ -200,10 +200,8 @@ function loop(timestamp) {
   while (accumulator >= TICK_INTERVAL && steps < MAX_STEPS) {
     sinusCounter = (sinusCounter + 5) % 200;
 
-    // Update constraint distances for sinus-animated connections (once per tick)
-    if (currentCon) currentCon.updateConstraints(sinusCounter);
-
     for (let i = 0; i < SUBSTEPS; i++) {
+      if (currentCon) currentCon.applySpringForces(sinusCounter);
       interaction.update();
       physicsWorld.step(SUB_DT);
     }

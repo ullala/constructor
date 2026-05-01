@@ -1,6 +1,6 @@
 // interaction.js - Mouse drag interaction with mass spheres
 import * as THREE from 'three';
-import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
+import * as CANNON from '../lib/cannon-es.js';
 
 const DRAG_SPRING_STRENGTH = 10;
 const DRAG_SPRING_DAMPING  = 1;
@@ -21,7 +21,6 @@ export class Interaction {
     this._dragPlane = new THREE.Plane();
     this._dragTarget = new THREE.Vector3();
     this._hitPoint = new THREE.Vector3();
-    this._planeNormal = new THREE.Vector3(0, 1, 0);
   }
 
   init(camera, renderer, masses, physicsWorld) {
@@ -66,11 +65,13 @@ export class Interaction {
         this._dragging = true;
         this._dragBody = massObj.body;
 
-        // Set drag plane: horizontal at the mass's Y position
-        const massY = massObj.body.position.y;
+        // Drag plane: screen-parallel (normal = camera view direction) through the mass
+        const cameraDir = new THREE.Vector3();
+        this._camera.getWorldDirection(cameraDir);
+        const massPos = massObj.body.position;
         this._dragPlane.setFromNormalAndCoplanarPoint(
-          this._planeNormal,
-          new THREE.Vector3(0, massY, 0)
+          cameraDir,
+          new THREE.Vector3(massPos.x, massPos.y, massPos.z)
         );
 
         // Initial target at hit point
@@ -87,6 +88,7 @@ export class Interaction {
 
     const intersectPt = new THREE.Vector3();
     if (this._raycaster.ray.intersectPlane(this._dragPlane, intersectPt)) {
+      intersectPt.y = Math.max(intersectPt.y, -240);  // clamp above ground
       this._dragTarget.copy(intersectPt);
     }
   }

@@ -41,14 +41,14 @@ export class World3D {
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
     dirLight.position.set(400, 600, 400); // 45 degrees
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
     dirLight.shadow.camera.near = 1;
     dirLight.shadow.camera.far = 3000;
-    dirLight.shadow.camera.left = -500;
-    dirLight.shadow.camera.right = 500;
-    dirLight.shadow.camera.top = 500;
-    dirLight.shadow.camera.bottom = -500;
+    dirLight.shadow.camera.left = -1000;
+    dirLight.shadow.camera.right = 1000;
+    dirLight.shadow.camera.top = 1000;
+    dirLight.shadow.camera.bottom = -1000;
     this.scene.add(dirLight);
 
     // Hemisphere light for fill
@@ -80,7 +80,7 @@ export class World3D {
     const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(50, 50);  // tile across 2000 units
+    texture.repeat.set(10, 10);  // tile across 2000 units
     texture.magFilter = THREE.NearestFilter;
     texture.minFilter = THREE.NearestFilter;
     texture.needsUpdate = true;
